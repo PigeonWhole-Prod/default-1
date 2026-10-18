@@ -1,0 +1,10 @@
+<Solution>
+  <Configurations>
+    <Platform Name="ARM64" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="get connected.vcxproj" Id="f3b6f618-ec97-453e-9129-d59b607cc5e2">
+    <Deploy />
+  </Project>
+</Solution>
