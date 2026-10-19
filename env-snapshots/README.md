@@ -22,6 +22,17 @@ pwsh .\env-snapshots\add-snapshots.ps1 -OutDir C:\temp\snapshots
 ```
 By default output goes to this folder regardless of the current directory. The script is read-only with respect to your system.
 
+If `pwsh` (PowerShell 7) is not installed, Windows PowerShell works too:
+```powershell
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+.\env-snapshots\add-snapshots.ps1
+```
+
+## Validation workflow
+Run the script locally before opening a PR to confirm your setup works, then check that `git status` shows no snapshot files. After opening the PR, confirm the `verify-on-pr` workflow passes.
+
+The generated `.txt` and `.json` files are ignored by Git and are for local verification only. Do not commit them.
+
 ## Privacy
 Snapshots list installed software, hardware, drivers and system configuration, and may include machine-identifying details. Review before sharing.
 
