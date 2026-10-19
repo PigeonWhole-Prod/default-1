@@ -1,0 +1,10 @@
+{
+  "name": "default-1",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+  "customizations": {
+    "vscode": {
+      "extensions": []
+    }
+  },
+  "postCreateCommand": "if [ -f requirements.txt ]; then python3 -m pip install --upgrade pip && python3 -m pip install -r requirements.txt; elif [ -f package.json ]; then npm install; fi"
+}
