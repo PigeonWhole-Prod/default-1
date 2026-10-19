@@ -1,50 +1,94 @@
-﻿name: verify-on-pr
+name: verify-on-pr
 
 on:
   pull_request:
 
+permissions:
+  contents: read
+
+concurrency:
+  group: verify-on-pr-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   verify:
     runs-on: windows-latest
+    timeout-minutes: 20
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Detect project types
+        id: detect
+        shell: pwsh
+        run: |
+          $py = (Test-Path "requirements.txt") -or (Test-Path "pytest.ini") -or (Test-Path "pyproject.toml")
+          $node = Test-Path "package.json"
+          "python=$($py.ToString().ToLower())" >> $env:GITHUB_OUTPUT
+          "node=$($node.ToString().ToLower())" >> $env:GITHUB_OUTPUT
 
       - name: Setup Python
+        if: steps.detect.outputs.python == 'true'
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
-      - name: Install project deps
+      - name: Setup Node
+        if: steps.detect.outputs.node == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install Python deps
+        if: steps.detect.outputs.python == 'true'
         shell: pwsh
         run: |
+          python -m pip install --upgrade pip
           if (Test-Path "requirements.txt") {
-            python -m pip install --upgrade pip
             python -m pip install -r requirements.txt
           }
-          if (Test-Path "package.json") {
-            npm install
-          }
+          python -m pip install pytest
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
-      - name: Run tests
+      - name: Install Node deps
+        if: steps.detect.outputs.node == 'true'
         shell: pwsh
         run: |
-          if (Test-Path "package.json") {
-            npm test -- --runInBand
-          } elseif (Test-Path "pytest.ini") {
-            pytest -q
-          } elseif (Test-Path "requirements.txt") {
-            pytest -q
-          } else {
-            Write-Host "No recognized test command found."
-          }
+          if (Test-Path "package-lock.json") { npm ci } else { npm install }
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Run Python tests
+        if: steps.detect.outputs.python == 'true'
+        shell: pwsh
+        run: |
+          python -m pytest -q
+          # pytest exit code 5 = no tests collected; not a failure here
+          if ($LASTEXITCODE -eq 5) { exit 0 }
+          exit $LASTEXITCODE
+
+      - name: Run Node tests
+        if: steps.detect.outputs.node == 'true'
+        shell: pwsh
+        run: |
+          npm test --if-present
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: No recognized project
+        if: steps.detect.outputs.python != 'true' && steps.detect.outputs.node != 'true'
+        shell: pwsh
+        run: Write-Host "No Python or Node project detected; nothing to test."
 
       - name: Upload diagnostics
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: verification-logs
+          if-no-files-found: ignore
           path: |
-            env-snapshots
+            env-snapshots/*.txt
+            env-snapshots/*.json
             .pytest_cache
             npm-debug.log*
+            **/npm-debug.log*
