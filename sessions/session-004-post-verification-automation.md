@@ -47,3 +47,8 @@ STEPS
 - If you want these artifacts added to the repo, reply: "add session-004" and I will create sessions/session-004-post-verification-automation.md plus the env-snapshot script and CI workflow (or only the files you request).
 - If you prefer I only create the session note, reply: "add session-004 note".
 - If you want me to analyze specific outputs from session-003, paste them here (env snapshots, sfc/DISM outputs, build logs), and I’ll triage and propose fixes or create issues/PRs per the findings.
+
+STATUS (setup)
+- Done: env-snapshots/add-snapshots.ps1, env-snapshots/README.md, .github/workflows/verify-on-pr.yml (hardened).
+- Next: run `pwsh .\env-snapshots\add-snapshots.ps1` locally, review outputs (do not commit), open a test PR to confirm verify-on-pr passes, then create the restore branch.
+- Remaining optional: devcontainer/Dockerfile, issue template, PR checklist.
