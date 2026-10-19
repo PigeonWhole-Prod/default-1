@@ -30,3 +30,10 @@ Snapshots list installed software, hardware, drivers and system configuration, a
 
 ## CI
 `.github/workflows/verify-on-pr.yml` does not run this script. It uploads any snapshot files present in the checkout as artifacts only if they exist (they are normally not committed).
+
+## Dev container
+`.devcontainer/devcontainer.json` provides a minimal Linux environment (PowerShell, Python 3.11, Node 20, matching the PR workflow) for VS Code / Codespaces. After opening the repo in the container, run:
+```powershell
+pwsh ./env-snapshots/add-snapshots.ps1
+```
+Windows-only captures (`driver-list`, `winget-list`, `wsl-list`) will just record that the tool is unavailable. Generated snapshot files stay git-ignored; do not commit them.
