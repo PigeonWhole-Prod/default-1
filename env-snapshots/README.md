@@ -25,7 +25,7 @@ By default output goes to this folder regardless of the current directory. The s
 ## Privacy
 Snapshots list installed software, hardware, drivers and system configuration, and may include machine-identifying details. Review before sharing.
 
-- `.gitignore` excludes `env-snapshots/*.txt`. **Do not commit** snapshots, and note it does not exclude `env-metadata-*.json`; don't commit those either.
+- `.gitignore` excludes `env-snapshots/*.txt` and `env-snapshots/*.json`. **Do not commit** snapshots.
 - Do not attach snapshots to public issues without redacting sensitive information.
 
 ## CI
