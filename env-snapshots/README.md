@@ -30,3 +30,12 @@ Snapshots list installed software, hardware, drivers and system configuration, a
 
 ## CI
 `.github/workflows/verify-on-pr.yml` does not run this script. It uploads any snapshot files present in the checkout as artifacts only if they exist (they are normally not committed).
+
+## Validating the PR verification workflow
+1. Push a branch and open a pull request (the workflow triggers on `pull_request`).
+2. In the PR's **Checks** tab, confirm the `verify-on-pr` run completes successfully.
+3. Open the run's summary and check the `verification-logs` artifact. It is only uploaded if matching files exist, so it may be absent.
+4. Confirm `git status` and the PR's **Files changed** tab show no `env-snapshots/*.txt` or `env-snapshots/*.json` files. Generated snapshots must never be committed.
+
+## Optional: containerized checks
+`.devcontainer/devcontainer.json` provides an optional PowerShell 7 (`pwsh`) environment. It is useful for running the script and the Python/Node tests on Linux; Windows-only snapshot items (winget, drivers, WSL) are recorded as unavailable. The CI workflow itself runs on `windows-latest`.
